@@ -51,9 +51,12 @@ public class FileViewer extends JFrame implements TreeSelectionListener {
     @Override
     public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
+        setTitle(String.valueOf(node));
         if (new File(String.valueOf(node)).getName().endsWith("txt")) {
             reader(new File(String.valueOf(node)));
             textArea.setText(String.valueOf(data));
+        } else {
+            textArea.setText("");
         }
     }
 
