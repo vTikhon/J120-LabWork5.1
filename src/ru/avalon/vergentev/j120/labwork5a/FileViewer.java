@@ -7,6 +7,8 @@ import javax.swing.tree.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+import static java.awt.Component.LEFT_ALIGNMENT;
+
 public class FileViewer extends JFrame implements TreeSelectionListener, KeyListener {
     File file = new File(System.getProperty("user.dir"));
     DefaultMutableTreeNode nodeStart = new DefaultMutableTreeNode(System.getProperty("user.dir"));
@@ -14,34 +16,35 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
     StringBuilder text;
     JScrollPane panelForTree = new JScrollPane();
     JScrollPane panelForText = new JScrollPane();
+    JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelForTree, panelForText);
     JTree tree;
     JTextArea textArea = new JTextArea("");
 
     public FileViewer() {
         initializationFrame();
+
         initializationTree();
         initializationTextArea();
     }
 
     public void initializationFrame () {
-        setTitle("File viewer");
+        setTitle("Txt viewer");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1200, 900);
         setResizable(true);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(1 , 2));
+        setLayout(new BorderLayout());
+        add(splitPane);
     }
 
     public void initializationTree () {
         getDirectoriesForTree(nodeStart, file);
-        add(panelForTree);
         tree = new JTree(nodeStart);
         panelForTree.setViewportView(tree);
         tree.setRootVisible(true);
-        tree.setBackground(Color.LIGHT_GRAY);
+        tree.setBackground(Color.WHITE);
         tree.addTreeSelectionListener(this);
         tree.addKeyListener(this);
-//        tree.addMouseListener((MouseListener) this);
     }
 
     public void getDirectoriesForTree (DefaultMutableTreeNode node, File file) {
@@ -63,7 +66,6 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
     }
 
     public void initializationTextArea () {
-        add(panelForText);
         panelForText.setViewportView(textArea);
         textArea.setBackground(Color.ORANGE);
     }
@@ -71,6 +73,16 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
     @Override
     public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
+
+
+
+        if (!((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).isLeaf()) {
+            System.out.println("is folder");
+            System.out.println(((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).children());
+        }
+
+
+
         setTitle(String.valueOf(node));
         textArea.setText("");
         if (new File(String.valueOf(node)).getName().endsWith("txt")) {
@@ -100,10 +112,7 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            System.out.println("aaaa");
-            int mouseClicked = MouseEvent.MOUSE_CLICKED;
-            int mouseClicked2 = MouseEvent.MOUSE_CLICKED;
-
+            System.out.println("ENTER is pressed");
         }
     }
     @Override
