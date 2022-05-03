@@ -1,41 +1,45 @@
 package ru.avalon.vergentev.j120.labwork5a;
 import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.*;
 
-public class FileViewer extends JFrame implements TreeSelectionListener {
+public class FileViewer extends JFrame implements TreeSelectionListener, KeyListener {
     File file = new File(System.getProperty("user.dir"));
     DefaultMutableTreeNode root = new DefaultMutableTreeNode();
     StringBuilder text;
     JScrollPane panelForTree = new JScrollPane();
     JScrollPane panelForText = new JScrollPane();
     JTree tree;
-    JTextArea textArea = new JTextArea(String.valueOf(text));
+    JTextArea textArea = new JTextArea("");
 
     public FileViewer() {
+        initializationFrame();
+        initializationTree(file);
+        initializationTextArea();
+    }
+
+    public void initializationFrame () {
         setTitle("File viewer");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1200, 900);
         setResizable(true);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(1 , 2));
+    }
 
+    public void initializationTree (File file) {
         getDirectoriesForTree(root, file);
-
         add(panelForTree);
         tree = new JTree(root);
         panelForTree.setViewportView(tree);
         tree.setRootVisible(true);
         tree.setBackground(Color.LIGHT_GRAY);
         tree.addTreeSelectionListener(this);
-
-        add(panelForText);
-        panelForText.setViewportView(textArea);
-        textArea.setBackground(Color.ORANGE);
+        tree.addKeyListener(this);
     }
 
     public void getDirectoriesForTree (DefaultMutableTreeNode node, File file) {
@@ -46,6 +50,12 @@ public class FileViewer extends JFrame implements TreeSelectionListener {
             assert listFiles != null;
             for (File value : listFiles) getDirectoriesForTree(child, value);
         }
+    }
+
+    public void initializationTextArea () {
+        add(panelForText);
+        panelForText.setViewportView(textArea);
+        textArea.setBackground(Color.ORANGE);
     }
 
     @Override
@@ -74,4 +84,15 @@ public class FileViewer extends JFrame implements TreeSelectionListener {
         }
         return text;
     }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            System.out.println("aaaa");
+        }
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {}
 }
