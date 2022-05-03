@@ -10,11 +10,11 @@ import javax.swing.tree.*;
 public class FileViewer extends JFrame implements TreeSelectionListener {
     File file = new File(System.getProperty("user.dir"));
     DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-    StringBuilder data;
+    StringBuilder text;
     JScrollPane panelForTree = new JScrollPane();
     JScrollPane panelForText = new JScrollPane();
     JTree tree;
-    JTextArea textArea = new JTextArea(String.valueOf(data));
+    JTextArea textArea = new JTextArea(String.valueOf(text));
 
     public FileViewer() {
         setTitle("File viewer");
@@ -52,11 +52,10 @@ public class FileViewer extends JFrame implements TreeSelectionListener {
     public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
         setTitle(String.valueOf(node));
+        textArea.setText("");
         if (new File(String.valueOf(node)).getName().endsWith("txt")) {
             reader(new File(String.valueOf(node)));
-            textArea.setText(String.valueOf(data));
-        } else {
-            textArea.setText("");
+            textArea.setText(String.valueOf(text));
         }
     }
 
@@ -65,14 +64,14 @@ public class FileViewer extends JFrame implements TreeSelectionListener {
         int symbolExisting;
         try {
             FileReader fileReader = new FileReader(file, StandardCharsets.UTF_8);
-            data = new StringBuilder();
+            text = new StringBuilder();
             while ((symbolExisting = fileReader.read()) != -1) {
-                data.append((char)symbolExisting);
+                text.append((char)symbolExisting);
             }
             fileReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return data;
+        return text;
     }
 }
