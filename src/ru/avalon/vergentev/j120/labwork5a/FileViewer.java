@@ -9,7 +9,8 @@ import java.nio.charset.StandardCharsets;
 
 public class FileViewer extends JFrame implements TreeSelectionListener, KeyListener {
     File file = new File(System.getProperty("user.dir"));
-    DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+    DefaultMutableTreeNode nodeStart = new DefaultMutableTreeNode(System.getProperty("user.dir"));
+
     StringBuilder text;
     JScrollPane panelForTree = new JScrollPane();
     JScrollPane panelForText = new JScrollPane();
@@ -18,7 +19,7 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
 
     public FileViewer() {
         initializationFrame();
-        initializationTree(file);
+        initializationTree();
         initializationTextArea();
     }
 
@@ -31,24 +32,33 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
         setLayout(new GridLayout(1 , 2));
     }
 
-    public void initializationTree (File file) {
-        getDirectoriesForTree(root, file);
+    public void initializationTree () {
+        getDirectoriesForTree(nodeStart, file);
         add(panelForTree);
-        tree = new JTree(root);
+        tree = new JTree(nodeStart);
         panelForTree.setViewportView(tree);
         tree.setRootVisible(true);
         tree.setBackground(Color.LIGHT_GRAY);
         tree.addTreeSelectionListener(this);
         tree.addKeyListener(this);
+//        tree.addMouseListener((MouseListener) this);
     }
 
     public void getDirectoriesForTree (DefaultMutableTreeNode node, File file) {
-        DefaultMutableTreeNode child = new DefaultMutableTreeNode(file);
-        node.add(child);
-        if (file.isDirectory()) {
-            File[] listFiles = file.listFiles();
-            assert listFiles != null;
-            for (File value : listFiles) getDirectoriesForTree(child, value);
+        if (file.getPath().equals(System.getProperty("user.dir"))) {
+            if (file.isDirectory()) {
+                File[] listFiles = file.listFiles();
+                assert listFiles != null;
+                for (File eachFile : listFiles) getDirectoriesForTree(node, eachFile);
+            }
+        } else {
+            DefaultMutableTreeNode nodeChild = new DefaultMutableTreeNode(file);
+            node.add(nodeChild);
+            if (file.isDirectory()) {
+                File[] listFiles = file.listFiles();
+                assert listFiles != null;
+                for (File eachFile : listFiles) getDirectoriesForTree(nodeChild, eachFile);
+            }
         }
     }
 
@@ -91,6 +101,9 @@ public class FileViewer extends JFrame implements TreeSelectionListener, KeyList
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             System.out.println("aaaa");
+            int mouseClicked = MouseEvent.MOUSE_CLICKED;
+            int mouseClicked2 = MouseEvent.MOUSE_CLICKED;
+
         }
     }
     @Override
