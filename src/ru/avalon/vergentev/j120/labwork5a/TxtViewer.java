@@ -7,17 +7,18 @@ import javax.swing.tree.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class TxtViewer extends JFrame implements TreeSelectionListener, KeyListener {
-    File file = new File(System.getProperty("user.dir"));
-    DefaultMutableTreeNode nodeStart = new DefaultMutableTreeNode(System.getProperty("user.dir"));
-    TreePath path;
-    StringBuilder text;
-    JScrollPane panelForTree = new JScrollPane();
-    JScrollPane panelForText = new JScrollPane();
-    JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelForTree, panelForText);
-    JTree tree;
-    JTextArea textArea = new JTextArea("");
+public class TxtViewer extends JFrame implements KeyListener {
+    private static final JScrollPane panelForTree = new JScrollPane();
+    private static final JScrollPane panelForText = new JScrollPane();
+    private static final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelForTree, panelForText);
 
+    private static final File file = new File(System.getProperty("user.dir"));
+    private static final DefaultMutableTreeNode nodeStart = new DefaultMutableTreeNode(System.getProperty("user.dir"));
+    private TreePath path;
+    private JTree tree;
+
+    private StringBuilder text;
+    private static final JTextArea textArea = new JTextArea("");
 
     public TxtViewer() {
         initializationFrame();
@@ -59,7 +60,7 @@ public class TxtViewer extends JFrame implements TreeSelectionListener, KeyListe
         panelForTree.setViewportView(tree);
         tree.setRootVisible(true);
         tree.setBackground(Color.WHITE);
-        tree.addTreeSelectionListener(this);
+        tree.addTreeSelectionListener(e -> valueChanged(e));
         tree.addKeyListener(this);
     }
 
@@ -68,7 +69,6 @@ public class TxtViewer extends JFrame implements TreeSelectionListener, KeyListe
         textArea.setBackground(Color.ORANGE);
     }
 
-    @Override
     public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
         setTitle(String.valueOf(node));
