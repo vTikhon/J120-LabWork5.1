@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TxtViewer extends JFrame implements KeyListener {
     private static final JScrollPane panelForTree = new JScrollPane();
@@ -14,12 +16,14 @@ public class TxtViewer extends JFrame implements KeyListener {
 
     private DefaultTreeModel defaultTreeModel;
     private File file;
-    private DefaultMutableTreeNode nodeStart;
+    private static final DefaultMutableTreeNode nodeStart = new DefaultMutableTreeNode("<<..>>");
     private TreePath path;
     private JTree tree;
 
     private StringBuilder text;
     private static final JTextArea textArea = new JTextArea("");
+
+    Map<String, File> filesMap = new HashMap<>();
 
     public TxtViewer() {
         initializationFrame();
@@ -40,6 +44,7 @@ public class TxtViewer extends JFrame implements KeyListener {
     public MutableTreeNode getDirectoriesForTree (DefaultMutableTreeNode node, File file) {
         DefaultMutableTreeNode nodeChild = new DefaultMutableTreeNode(file.getName());
         node.add(nodeChild);
+        filesMap.put(file.getName(), file);
         if (file.isDirectory() && file.exists()) {
             File[] listFiles = file.listFiles();
             if (listFiles != null) {
@@ -50,7 +55,6 @@ public class TxtViewer extends JFrame implements KeyListener {
     }
 
     public void initializationTree () {
-        nodeStart = new DefaultMutableTreeNode("<<..>>");
         file = new File(System.getProperty("user.dir"));
         defaultTreeModel = new DefaultTreeModel(getDirectoriesForTree(nodeStart, file));
         tree = new JTree(defaultTreeModel);  //new DefaultTreeModel(nodeStart)
@@ -72,12 +76,19 @@ public class TxtViewer extends JFrame implements KeyListener {
 
     public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
-        //часть для перестроения <<..>>
+        //часть для перестроения <<..>> в родительскую директорию
         if (e.getPath().getLastPathComponent() == nodeStart && file.getParentFile() != null) {
             nodeStart.removeAllChildren();
-            nodeStart = new DefaultMutableTreeNode("<<..>>");
-            file = new File(file.getAbsoluteFile().getParent());
-            defaultTreeModel.reload();
+            file = new File(file.getParent());
+            defaultTreeModel = new DefaultTreeModel(getDirectoriesForTree(nodeStart, file));
+            tree = new JTree(defaultTreeModel);
+            addTree();
+        }
+        //часть для перестроения <<..>> в наследниковскую директорию
+        else if (!((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).isLeaf() && e.getPath().getLastPathComponent() != nodeStart.getLastChild()) {  // && file.isDirectory ?
+            String key = tree.getSelectionPath().getLastPathComponent().toString();
+            nodeStart.removeAllChildren();
+            file = new File(String.valueOf(filesMap.get(key)));  //String.valueOf(e.getPath().getLastPathComponent())
             defaultTreeModel = new DefaultTreeModel(getDirectoriesForTree(nodeStart, file));
             tree = new JTree(defaultTreeModel);
             addTree();
@@ -85,7 +96,7 @@ public class TxtViewer extends JFrame implements KeyListener {
         //чтение txt файлов
         setTitle(String.valueOf(node));
         textArea.setText("");
-        if (new File(String.valueOf(node)).getName().endsWith("txt")) {
+        if (e.getPath().getLastPathComponent().toString().endsWith("txt")) {
             reader(new File(String.valueOf(node)));
             textArea.setText(String.valueOf(text));
         }
@@ -105,17 +116,16 @@ public class TxtViewer extends JFrame implements KeyListener {
                 text.append((char)symbolExisting);
             }
             fileReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("FileNotFoundException");   //выкидывает при некоторых директория файла (не знаю почему)
         } catch (IOException e) {
             e.printStackTrace();
         }
         return text;
     }
     public void algorithmIfEnterIsPushed () {
-        if (tree.isCollapsed(path)) {
-            tree.expandPath(path);
-        } else {
-            tree.collapsePath(path);
-        }
+        if (tree.isCollapsed(path)) {tree.expandPath(path);}
+        else {tree.collapsePath(path);}
     }
 
     @Override
